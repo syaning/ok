@@ -1,27 +1,55 @@
 package ok
 
 const (
-	MethodGET  = "GET"
-	MethodPOST = "POST"
+	GET  = "GET"
+	POST = "POST"
 )
 
 type Request struct {
-	method  string
-	url     string
-	headers map[string]string
+	Method  string
+	Url     string
+	Headers map[string]string
 }
 
-func (r *Request) Method(method string) {
-	r.method = method
-}
-
-func (r *Request) Url(url string) {
-	r.url = url
-}
-
-func (r *Request) Header(field string, value string) {
-	if r.headers == nil {
-		r.headers = make(map[string]string)
+// new HTTP request
+func New() *Request {
+	r := &Request{
+		Method:  GET,
+		Headers: make(map[string]string),
 	}
-	r.headers[field] = value
+	return r
+}
+
+// new GET HTTP request
+func Get(url string) *Request {
+	return New()
+}
+
+// new POST HTTP request
+func Post(url string) *Request {
+	r := New()
+	r.Method = POST
+	return r
+}
+
+// set request header
+func (r *Request) Set(field string, value string) *Request {
+	r.Headers[field] = value
+	return r
+}
+
+// alias for Set(field, value)
+func (r *Request) SetHeader(field string, value string) *Request {
+	return r.Set(field, value)
+}
+
+// set Content-Type header
+func (r *Request) Type(t string) *Request {
+	switch t {
+	case "form":
+		r.Set("Content-Type", "application/x-www-form-urlencoded")
+	case "json":
+		r.Set("Content-Type", "application/json")
+	}
+	return r
 }
