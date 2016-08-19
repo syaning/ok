@@ -12,9 +12,10 @@ type Request struct {
 }
 
 // new HTTP request
-func New() *Request {
+func New(method string, url string) *Request {
 	r := &Request{
-		Method:  GET,
+		Method:  method,
+		Url:     url,
 		Headers: make(map[string]string),
 	}
 	return r
@@ -22,14 +23,12 @@ func New() *Request {
 
 // new GET HTTP request
 func Get(url string) *Request {
-	return New()
+	return New(GET, url)
 }
 
 // new POST HTTP request
 func Post(url string) *Request {
-	r := New()
-	r.Method = POST
-	return r
+	return New(POST, url)
 }
 
 // set request header
@@ -39,7 +38,7 @@ func (r *Request) Set(field string, value string) *Request {
 }
 
 // alias for Set(field, value)
-func (r *Request) SetHeader(field string, value string) *Request {
+func (r *Request) Header(field string, value string) *Request {
 	return r.Set(field, value)
 }
 
