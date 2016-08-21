@@ -1,51 +1,57 @@
 package ok
 
+import (
+	"net/http"
+)
+
 const (
 	GET  = "GET"
 	POST = "POST"
 )
 
-type Request struct {
-	Method  string
-	Url     string
-	Headers map[string]string
+type request struct {
+	req *http.Request
 }
 
-// new HTTP request
-func New() *Request {
-	r := &Request{
-		Method:  GET,
-		Headers: make(map[string]string),
-	}
+func Request() *request {
+	return &request{&http.Request{}}
+}
+
+func NewRequest(method, uri string) *request {
+	r := Request()
+	r.Method(method).Url(uri)
 	return r
 }
 
-// new GET HTTP request
-func Get(url string) *Request {
-	return New()
+func Get(uri string) *request {
+	return NewRequest(GET, uri)
 }
 
-// new POST HTTP request
-func Post(url string) *Request {
-	r := New()
-	r.Method = POST
+func Post(uri string) *request {
+	return NewRequest(POST, uri)
+}
+
+func (r *request) Method(method string) *request {
+	r.req.Method = method
 	return r
 }
 
-// set request header
-func (r *Request) Set(field string, value string) *Request {
-	r.Headers[field] = value
+func (r *request) Url(uri string) *request {
+	// todo
 	return r
 }
 
-// alias for Set(field, value)
-func (r *Request) SetHeader(field string, value string) *Request {
-	return r.Set(field, value)
+func (r *request) Set(key, value string) *request {
+	// todo
+	return r
 }
 
-// set Content-Type header
-func (r *Request) Type(t string) *Request {
-	switch t {
+func (r *request) Header(key, value string) *request {
+	return r.Set(key, value)
+}
+
+func (r *request) Type(typ string) *request {
+	switch typ {
 	case "form":
 		r.Set("Content-Type", "application/x-www-form-urlencoded")
 	case "json":
