@@ -14,7 +14,10 @@ type request struct {
 }
 
 func Request() *request {
-	return &request{&http.Request{}}
+	req := &http.Request{
+		Header: make(http.Header),
+	}
+	return &request{req}
 }
 
 func NewRequest(method, uri string) *request {
@@ -31,6 +34,11 @@ func Post(uri string) *request {
 	return NewRequest(POST, uri)
 }
 
+func (r *request) GetRequest() *http.Request {
+	return r.req
+}
+
+// set request method
 func (r *request) Method(method string) *request {
 	r.req.Method = method
 	return r
@@ -41,13 +49,21 @@ func (r *request) Url(uri string) *request {
 	return r
 }
 
+// set request header
 func (r *request) Set(key, value string) *request {
-	// todo
+	r.req.Header.Set(key, value)
 	return r
 }
 
+// set request header, alias for Set(key, value string)
 func (r *request) Header(key, value string) *request {
 	return r.Set(key, value)
+}
+
+// set basic authorization
+func (r *request) BasicAuth(username, password string) *request {
+	r.req.SetBasicAuth(username, password)
+	return r
 }
 
 func (r *request) Type(typ string) *request {
