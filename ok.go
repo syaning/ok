@@ -2,6 +2,7 @@ package ok
 
 import (
 	"net/http"
+	"net/url"
 )
 
 const (
@@ -13,25 +14,26 @@ type request struct {
 	req *http.Request
 }
 
-func Request() *request {
-	req := &http.Request{
-		Header: make(http.Header),
+func NewRequest(method, urlStr string) *request {
+	req, err := http.NewRequest(method, urlStr, nil)
+	if err != nil {
+		return nil
 	}
-	return &request{req}
-}
 
-func NewRequest(method, uri string) *request {
-	r := Request()
-	r.Method(method).Url(uri)
+	r := &request{req}
 	return r
 }
 
-func Get(uri string) *request {
-	return NewRequest(GET, uri)
+func Request() *request {
+	return NewRequest("", "")
 }
 
-func Post(uri string) *request {
-	return NewRequest(POST, uri)
+func Get(urlStr string) *request {
+	return NewRequest(GET, urlStr)
+}
+
+func Post(urlStr string) *request {
+	return NewRequest(POST, urlStr)
 }
 
 func (r *request) GetRequest() *http.Request {
@@ -44,8 +46,13 @@ func (r *request) Method(method string) *request {
 	return r
 }
 
-func (r *request) Url(uri string) *request {
-	// todo
+// set request url
+func (r *request) Url(urlStr string) *request {
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return nil
+	}
+	r.req.URL = u
 	return r
 }
 
