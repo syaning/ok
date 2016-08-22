@@ -1,8 +1,10 @@
 package ok
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -12,6 +14,8 @@ const (
 
 type request struct {
 	req *http.Request
+	res *http.Response
+	err error
 }
 
 func NewRequest(method, urlStr string) *request {
@@ -20,7 +24,7 @@ func NewRequest(method, urlStr string) *request {
 		return nil
 	}
 
-	r := &request{req}
+	r := &request{req: req}
 	return r
 }
 
@@ -36,8 +40,12 @@ func Post(urlStr string) *request {
 	return NewRequest(POST, urlStr)
 }
 
-func (r *request) GetRequest() *http.Request {
+func (r *request) Request() *http.Request {
 	return r.req
+}
+
+func (r *request) Response() (*http.Response, error) {
+	return r.res, r.err
 }
 
 // set request method
@@ -73,12 +81,31 @@ func (r *request) BasicAuth(username, password string) *request {
 	return r
 }
 
-func (r *request) Type(typ string) *request {
-	switch typ {
-	case "form":
-		r.Set("Content-Type", "application/x-www-form-urlencoded")
-	case "json":
-		r.Set("Content-Type", "application/json")
-	}
+// send form
+func (r *request) Form(data string) *request {
+	reader := strings.NewReader(data)
+	r.req.Body = ioutil.NopCloser(reader)
+	r.req.ContentLength = int64(reader.Len())
+	r.Set("Content-Type", "application/x-www-form-urlencoded")
+	return r
+}
+
+// send json
+func (r *request) Json(data string) *request {
+	reader := strings.NewReader(data)
+	r.req.Body = ioutil.NopCloser(reader)
+	r.req.ContentLength = int64(reader.Len())
+	r.Set("Content-Type", "application/json")
+	return r
+}
+
+// alias for Json(data string)
+func (r *request) JSON(data string) *request {
+	return r.Json(data)
+}
+
+// send request
+func (r *request) OK() *request {
+	r.res, r.err = http.DefaultClient.Do(r.req)
 	return r
 }
