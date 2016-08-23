@@ -26,12 +26,7 @@ func NewRequest(method, urlStr string) *request {
 		return nil
 	}
 
-	r := &request{
-		client: &http.Client{},
-		req:    req,
-	}
-
-	return r
+	return &request{req: req}
 }
 
 func Request() *request {
@@ -129,6 +124,10 @@ func (r *request) JSON(data string) *request {
 
 // using proxy
 func (r *request) Proxy(proxy string) *request {
+	if r.client == nil {
+		r.client = &http.Client{}
+	}
+
 	r.client.Transport = &http.Transport{
 		Proxy: func(_ *http.Request) (*url.URL, error) {
 			return url.Parse(proxy)
@@ -139,6 +138,10 @@ func (r *request) Proxy(proxy string) *request {
 
 // send request
 func (r *request) OK() *request {
+	if r.client == nil {
+		r.client = http.DefaultClient
+	}
+
 	r.res, r.err = r.client.Do(r.req)
 	return r
 }
