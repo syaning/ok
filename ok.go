@@ -133,6 +133,18 @@ func (r *request) Proxy(proxy string) *request {
 			return url.Parse(proxy)
 		},
 	}
+
+	return r
+}
+
+// using proxy function
+func (r *request) ProxyFn(proxyFn func(*http.Request) (*url.URL, error)) *request {
+	if r.client == nil {
+		r.client = &http.Client{}
+	}
+
+	r.client.Transport = &http.Transport{Proxy: proxyFn}
+
 	return r
 }
 
