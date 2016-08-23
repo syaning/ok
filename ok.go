@@ -150,10 +150,11 @@ func (r *request) ProxyFn(proxyFn func(*http.Request) (*url.URL, error)) *reques
 
 // send request
 func (r *request) OK() *request {
-	if r.client == nil {
-		r.client = http.DefaultClient
+	client := http.DefaultClient
+	if r.client != nil {
+		client = r.client
 	}
 
-	r.res, r.err = r.client.Do(r.req)
+	r.res, r.err = client.Do(r.req)
 	return r
 }
