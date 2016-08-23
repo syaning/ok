@@ -13,18 +13,24 @@ const (
 )
 
 type request struct {
-	req *http.Request
-	res *http.Response
-	err error
+	client *http.Client
+	req    *http.Request
+	res    *http.Response
+	err    error
 }
 
 func NewRequest(method, urlStr string) *request {
 	req, err := http.NewRequest(method, urlStr, nil)
+
 	if err != nil {
 		return nil
 	}
 
-	r := &request{req: req}
+	r := &request{
+		client: &http.Client{},
+		req:    req,
+	}
+
 	return r
 }
 
@@ -38,6 +44,10 @@ func Get(urlStr string) *request {
 
 func Post(urlStr string) *request {
 	return NewRequest(POST, urlStr)
+}
+
+func (r *request) Client() *http.Client {
+	return r.client
 }
 
 func (r *request) Request() *http.Request {
@@ -117,8 +127,18 @@ func (r *request) JSON(data string) *request {
 	return r.Json(data)
 }
 
+// using proxy
+func (r *request) Proxy(proxy string) *request {
+	r.client.Transport = &http.Transport{
+		Proxy: func(_ *http.Request) (*url.URL, error) {
+			return url.Parse(proxy)
+		},
+	}
+	return r
+}
+
 // send request
 func (r *request) OK() *request {
-	r.res, r.err = http.DefaultClient.Do(r.req)
+	r.res, r.err = r.client.Do(r.req)
 	return r
 }
