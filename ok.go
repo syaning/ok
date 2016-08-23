@@ -58,7 +58,7 @@ func (r *request) Method(method string) *request {
 func (r *request) Url(urlStr string) *request {
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		return nil
+		return r
 	}
 	r.req.URL = u
 	return r
