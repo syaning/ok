@@ -64,6 +64,19 @@ func (r *request) Url(urlStr string) *request {
 	return r
 }
 
+// set query string
+func (r *request) Query(query string) *request {
+	r.req.URL.RawQuery = query
+	return r
+}
+
+// set param
+func (r *request) Param(key, value string) *request {
+	query := r.req.URL.Query()
+	query.Add(key, value)
+	return r.Query(query.Encode())
+}
+
 // set request header
 func (r *request) Set(key, value string) *request {
 	r.req.Header.Set(key, value)
