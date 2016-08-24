@@ -124,28 +124,34 @@ func (r *request) JSON(data string) *request {
 
 // using proxy
 func (r *request) Proxy(proxy string) *request {
-	if r.client == nil {
-		r.client = &http.Client{}
-	}
-
+	r.lazyClient()
 	r.client.Transport = &http.Transport{
 		Proxy: func(_ *http.Request) (*url.URL, error) {
 			return url.Parse(proxy)
 		},
 	}
-
 	return r
 }
 
 // using proxy function
 func (r *request) ProxyFn(proxyFn func(*http.Request) (*url.URL, error)) *request {
+	r.lazyClient()
+	r.client.Transport = &http.Transport{Proxy: proxyFn}
+	return r
+}
+
+// lazy client allocation
+func (r *request) lazyClient() {
 	if r.client == nil {
 		r.client = &http.Client{}
 	}
+}
 
-	r.client.Transport = &http.Transport{Proxy: proxyFn}
-
-	return r
+// use client
+func (r *request) Use(client *http.Client) *request {
+	if client != nil {
+		r.client = client
+	}
 }
 
 // send request
