@@ -1,17 +1,12 @@
 package ok
 
 import (
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
-)
-
-const (
-	GET    = "GET"
-	POST   = "POST"
-	PUT    = "PUT"
-	DELETE = "DELETE"
 )
 
 type request struct {
@@ -23,11 +18,9 @@ type request struct {
 
 func NewRequest(method, urlStr string) *request {
 	req, err := http.NewRequest(method, urlStr, nil)
-
 	if err != nil {
 		return nil
 	}
-
 	return &request{req: req}
 }
 
@@ -36,19 +29,19 @@ func Request() *request {
 }
 
 func Get(urlStr string) *request {
-	return NewRequest(GET, urlStr)
+	return NewRequest("GET", urlStr)
 }
 
 func Post(urlStr string) *request {
-	return NewRequest(POST, urlStr)
+	return NewRequest("POST", urlStr)
 }
 
 func Put(urlStr string) *request {
-	return NewRequest(PUT, urlStr)
+	return NewRequest("PUT", urlStr)
 }
 
 func Delete(urlStr string) *request {
-	return NewRequest(DELETE, urlStr)
+	return NewRequest("DELETE", urlStr)
 }
 
 func (r *request) Client() *http.Client {
@@ -156,7 +149,6 @@ func (r *request) OK() *request {
 	if r.client != nil {
 		client = r.client
 	}
-
 	r.res, r.err = client.Do(r.req)
 	return r
 }
@@ -166,7 +158,6 @@ func (r *request) ToBytes() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer res.Body.Close()
 	return ioutil.ReadAll(res.Body)
 }
@@ -177,4 +168,29 @@ func (r *request) ToString() (string, error) {
 		return "", err
 	}
 	return string(data), nil
+}
+
+func (r *request) Pipe(w io.Writer) (written int64, err error) {
+	res, err := r.Response()
+	if err != nil {
+		return 0, err
+	}
+	defer res.Body.Close()
+	written, err = io.Copy(w, res.Body)
+	return
+}
+
+func (r *request) ToFile(filename string) (size int64, err error) {
+	file, err := os.Create(filename)
+	if err != nil {
+		return 0, err
+	}
+	defer file.Close()
+	size, err = r.Pipe(file)
+	return
+}
+
+func Download(urlStr, filename string) (size int64, err error) {
+	size, err = Get(urlStr).OK().ToFile(filename)
+	return
 }
