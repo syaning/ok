@@ -1,6 +1,6 @@
 # ok
 
-HTTP request library for Go.
+The most simple but handy HTTP request library for Go.
 
 ## Installation
 
@@ -8,6 +8,6 @@ HTTP request library for Go.
 $ go get github.com/syaning/ok
 ```
 
-### License
+## License
 
 [MIT](./LICENSE)
