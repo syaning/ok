@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	GET  = "GET"
-	POST = "POST"
+	GET    = "GET"
+	POST   = "POST"
+	PUT    = "PUT"
+	DELETE = "DELETE"
 )
 
 type request struct {
@@ -39,6 +41,14 @@ func Get(urlStr string) *request {
 
 func Post(urlStr string) *request {
 	return NewRequest(POST, urlStr)
+}
+
+func Put(urlStr string) *request {
+	return NewRequest(PUT, urlStr)
+}
+
+func Delete(urlStr string) *request {
+	return NewRequest(DELETE, urlStr)
 }
 
 func (r *request) Client() *http.Client {
