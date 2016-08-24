@@ -63,13 +63,11 @@ func (r *request) Response() (*http.Response, error) {
 	return r.res, r.err
 }
 
-// set request method
 func (r *request) Method(method string) *request {
 	r.req.Method = method
 	return r
 }
 
-// set request url
 func (r *request) Url(urlStr string) *request {
 	u, err := url.Parse(urlStr)
 	if err != nil {
@@ -79,37 +77,31 @@ func (r *request) Url(urlStr string) *request {
 	return r
 }
 
-// set query string
 func (r *request) Query(query string) *request {
 	r.req.URL.RawQuery = query
 	return r
 }
 
-// set param
 func (r *request) Param(key, value string) *request {
 	query := r.req.URL.Query()
 	query.Add(key, value)
 	return r.Query(query.Encode())
 }
 
-// set request header
 func (r *request) Set(key, value string) *request {
 	r.req.Header.Set(key, value)
 	return r
 }
 
-// set request header, alias for Set(key, value string)
 func (r *request) Header(key, value string) *request {
 	return r.Set(key, value)
 }
 
-// set basic authorization
 func (r *request) BasicAuth(username, password string) *request {
 	r.req.SetBasicAuth(username, password)
 	return r
 }
 
-// send form
 func (r *request) Form(data string) *request {
 	reader := strings.NewReader(data)
 	r.req.Body = ioutil.NopCloser(reader)
@@ -118,7 +110,6 @@ func (r *request) Form(data string) *request {
 	return r
 }
 
-// send json
 func (r *request) Json(data string) *request {
 	reader := strings.NewReader(data)
 	r.req.Body = ioutil.NopCloser(reader)
@@ -127,12 +118,10 @@ func (r *request) Json(data string) *request {
 	return r
 }
 
-// alias for Json(data string)
 func (r *request) JSON(data string) *request {
 	return r.Json(data)
 }
 
-// using proxy
 func (r *request) Proxy(proxy string) *request {
 	r.lazyClient()
 	r.client.Transport = &http.Transport{
@@ -143,21 +132,18 @@ func (r *request) Proxy(proxy string) *request {
 	return r
 }
 
-// using proxy function
 func (r *request) ProxyFn(proxyFn func(*http.Request) (*url.URL, error)) *request {
 	r.lazyClient()
 	r.client.Transport = &http.Transport{Proxy: proxyFn}
 	return r
 }
 
-// lazy client allocation
 func (r *request) lazyClient() {
 	if r.client == nil {
 		r.client = &http.Client{}
 	}
 }
 
-// use client
 func (r *request) Use(client *http.Client) *request {
 	if client != nil {
 		r.client = client
@@ -165,7 +151,6 @@ func (r *request) Use(client *http.Client) *request {
 	return r
 }
 
-// send request
 func (r *request) OK() *request {
 	client := http.DefaultClient
 	if r.client != nil {
