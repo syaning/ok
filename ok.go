@@ -160,3 +160,21 @@ func (r *request) OK() *request {
 	r.res, r.err = client.Do(r.req)
 	return r
 }
+
+func (r *request) ToBytes() ([]byte, error) {
+	res, err := r.Response()
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+	return ioutil.ReadAll(res.Body)
+}
+
+func (r *request) ToString() (string, error) {
+	data, err := r.ToBytes()
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
