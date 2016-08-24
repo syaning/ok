@@ -162,6 +162,7 @@ func (r *request) Use(client *http.Client) *request {
 	if client != nil {
 		r.client = client
 	}
+	return r
 }
 
 // send request
