@@ -1,3 +1,8 @@
+# 0.1.1 / 2016-08-25
+
+- Export `ok.RequestWrapper`.
+- Update documentation.
+
 # 0.1.0 / 2016-08-24
 
 - Send request and get response.
