@@ -66,7 +66,7 @@ fmt.Println(size, err)
 ```go
 size, err := ok.
     Post("http://httpbin.org/post").
-    Json("greeting=hello world").
+    Form("greeting=hello world").
     OK().
     ToFile("res.json")
 fmt.Println(size, err)
